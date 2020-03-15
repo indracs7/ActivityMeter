@@ -4,6 +4,35 @@ import java.util.List;
 
 public class ActivityPojo
 {
+    private String filePath;
+    private _id _id;
+
+    public ActivityPojo(String filePath, com.joblesscoders.activitymeter._id _id, List<Float> magnetx, List<Float> magnety, String activity, List<Float> acceleroz, List<Float> gyrox, List<Float> gyroy, List<Float> gyroz, List<Float> accelerox, List<Float> acceleroy, long startTime, long endTime, List<Float> magnetz, String user) {
+        this.filePath = filePath;
+        this._id = _id;
+        this.magnetx = magnetx;
+        this.magnety = magnety;
+        this.activity = activity;
+        this.acceleroz = acceleroz;
+        this.gyrox = gyrox;
+        this.gyroy = gyroy;
+        this.gyroz = gyroz;
+        this.accelerox = accelerox;
+        this.acceleroy = acceleroy;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.magnetz = magnetz;
+        this.user = user;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public com.joblesscoders.activitymeter._id get_id() {
+        return _id;
+    }
+
     private List<Float> magnetx;
 
     private List<Float> magnety;

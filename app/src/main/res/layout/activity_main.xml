@@ -81,7 +81,7 @@
         android:layout_width="wrap_content"
         android:id="@+id/getdata"
         android:layout_marginTop="8dp"
-        android:text="show all data"
+        android:text="Download all csv"
         android:layout_height="wrap_content"></com.google.android.material.button.MaterialButton>
 
 
