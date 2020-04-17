@@ -22,6 +22,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -130,9 +131,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                    if(response.code() == 200)
                    {
-                       boolean writtenToDisk = writeResponseBodyToDisk(response.body(),activityPojo.get_id());
+                       SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+                       String time = dateFormat.format(activityPojo.getStartTime());
+                       String nameOfFile = activityPojo.getUser()+"-"+activityPojo.getActivity()+"-"+time;
+                       boolean writtenToDisk = writeResponseBodyToDisk(response.body(),nameOfFile);
                        if(writtenToDisk)
-                           Toast.makeText(MainActivity.this, activityPojo.get_id().get$oid()+" is saved", Toast.LENGTH_SHORT).show();
+                           Toast.makeText(MainActivity.this, nameOfFile+" is saved", Toast.LENGTH_SHORT).show();
                    }
                }
 
@@ -145,13 +149,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-        private boolean writeResponseBodyToDisk(ResponseBody body, _id id) {
+        private boolean writeResponseBodyToDisk(ResponseBody body, String nameOfFile) {
             try {
                 File directory = new File(Environment.getExternalStorageDirectory()+File.separator+"ActivityMeter");
                 if(!directory.exists())
                     directory.mkdirs();
-                // todo change the file location/name according to your needs
-                File futureStudioIconFile = new File(directory.getAbsolutePath() + File.separator + id.get$oid()+".csv");
+                File futureStudioIconFile = new File(directory.getAbsolutePath() + File.separator + nameOfFile+".csv");
 
                 InputStream inputStream = null;
                 OutputStream outputStream = null;
