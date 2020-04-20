@@ -15,7 +15,6 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity android:name=".ShowDataActivity"></activity>
-        <activity android:name=".EventActivity2" />
         <activity android:name=".EventActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>

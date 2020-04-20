@@ -9,16 +9,14 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.opencsv.CSVWriter;
+//import com.opencsv.CSVWriter;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -74,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Toast.makeText(this, "Hey you l'il bitch, time should be greater than zero.", Toast.LENGTH_SHORT).show();
                 return;
             }
-            Intent intent = new Intent(this, EventActivity2.class);
+            Intent intent = new Intent(this, EventActivity.class);
             intent.putExtra("username", username.getText().toString());
             intent.putExtra("activityname", activityname.getText().toString());
             intent.putExtra("delay", delay.getText().toString());
