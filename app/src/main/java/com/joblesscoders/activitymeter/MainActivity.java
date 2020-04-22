@@ -20,9 +20,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -45,12 +47,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         start = findViewById(R.id.start);
         showdata = findViewById(R.id.getdata);
         showdata.setOnClickListener(this);
         username = findViewById(R.id.username);
         activityname = findViewById(R.id.activity);
         delay = findViewById(R.id.delay);
+        ActivityPojo prevActivity = SharedPrefHandler.getData(getApplicationContext());
+        if(prevActivity!=null)
+        {
+            username.setText(prevActivity.getUser());
+            delay.setText(prevActivity.getDelay()+"");
+            activityname.setText(prevActivity.getActivity());
+        }
 
         start.setOnClickListener(this);
 
@@ -72,11 +82,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Toast.makeText(this, "Hey you l'il bitch, time should be greater than zero.", Toast.LENGTH_SHORT).show();
                 return;
             }
+            ActivityPojo activityPojo = new ActivityPojo(activityname.getText().toString(),Integer.parseInt(delay.getText().toString()), username.getText().toString());
+            SharedPrefHandler.saveData(getApplicationContext(),activityPojo);
             Intent intent = new Intent(this, EventActivity.class);
-            intent.putExtra("username", username.getText().toString());
-            intent.putExtra("activityname", activityname.getText().toString());
-            intent.putExtra("delay", delay.getText().toString());
+            intent.putExtra("username", activityPojo.getUser());
+            intent.putExtra("activityname", activityPojo.getActivity());
+            intent.putExtra("delay", activityPojo.getDelay()+"");
             startActivity(intent);
+
         } else
             Toast.makeText(this, "There's a reason there are three boxes, fill'em up bitch!", Toast.LENGTH_SHORT).show();
 
@@ -222,4 +235,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // permissions this app might request.
         }
     }
+
 }

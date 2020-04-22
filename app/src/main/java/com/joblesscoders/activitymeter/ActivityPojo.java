@@ -49,11 +49,26 @@ public class ActivityPojo
 
     private List<Float> accelerox;
 
+    public int getDelay() {
+        return delay;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
+    }
+
     private List<Float> acceleroy;
 
     private long startTime;
 
+    public ActivityPojo(String activity, int delay, String user) {
+        this.activity = activity;
+        this.delay = delay;
+        this.user = user;
+    }
+
     private long endTime;
+    private int delay;
 
     private List<Float> magnetz;
 

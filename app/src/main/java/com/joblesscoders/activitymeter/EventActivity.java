@@ -10,6 +10,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -18,11 +19,13 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -39,6 +42,7 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
     private long start_time,end_time;
     private Timer timer;
     private LineData dataGyro,dataAccelero,dataMagneto;
+    private TextView count,total_time;
 
     ArrayList<ILineDataSet> dataSetsGyro = new ArrayList<>(),dataSetsAccelero = new ArrayList<>(),dataSetsMagneto = new ArrayList<>();
 
@@ -49,7 +53,8 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
         setContentView(R.layout.activity_event2);
         sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         chartGyro = (LineChart) findViewById(R.id.graphgyro);
-
+        count = findViewById(R.id.count);
+        total_time = findViewById(R.id.time);
         chartAccelero = (LineChart) findViewById(R.id.graphaccelero);
         chartMagneto = (LineChart) findViewById(R.id.graphmagneto);
         chartGyro.setVisibleXRangeMaximum(1000);
@@ -189,7 +194,12 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
                 chartAccelero.invalidate();
                 chartMagneto.notifyDataSetChanged();
                 chartMagneto.invalidate();
-
+                count.setText("Data count : "+acceleroxList.size()+"");
+                try {
+                    total_time.setText("Time elapsed : "+getFormattedTime(new Date().getTime()-start_time));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
         });
         Log.d("hello","gyrox "+gyrox+" gyroy "+gyroy+" gyroz "+gyroz);
@@ -306,5 +316,11 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
     public void onBackPressed() {
         Toast.makeText(this, "Activity is already running!", Toast.LENGTH_SHORT).show();
         // super.onBackPressed();
+    }
+    public String getFormattedTime(long millis) throws ParseException {
+        String hms = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis),
+                TimeUnit.MILLISECONDS.toMinutes(millis) % TimeUnit.HOURS.toMinutes(1),
+                TimeUnit.MILLISECONDS.toSeconds(millis) % TimeUnit.MINUTES.toSeconds(1));
+        return hms;
     }
 }
