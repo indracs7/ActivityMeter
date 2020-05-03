@@ -2,6 +2,7 @@ package com.joblesscoders.activitymeter;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -35,7 +36,7 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
     private LineChart chartGyro,chartAccelero,chartMagneto;
     private SensorManager sensorManager;
     private List<Float> gyroxList= new ArrayList<>(),gyroyList= new ArrayList<>(),gyrozList= new ArrayList<>(),acceleroxList= new ArrayList<>(),acceleroyList= new ArrayList<>(),accelerozList = new ArrayList<>(),magnetoxList = new ArrayList<>(),magnetoyList = new ArrayList<>(),magnetozList = new ArrayList<>();
-    private View stop;
+    private View stop,cancel;
     private Float gyrox = 0.0f,gyroz= 0.0f,gyroy= 0.0f,accelerox= 0.0f,acceleroy= 0.0f,acceleroz= 0.0f,magnetox= 0.0f,magnetoy= 0.0f,magnetoz= 0.0f;
     private String username,activityname;
     private int delay;
@@ -43,30 +44,45 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
     private Timer timer;
     private LineData dataGyro,dataAccelero,dataMagneto;
     private TextView count,total_time;
+    private float[] gravityValues = null;
+    private float[] magneticValues = null;
+    private ProgressDialog progressDialog;
 
-    ArrayList<ILineDataSet> dataSetsGyro = new ArrayList<>(),dataSetsAccelero = new ArrayList<>(),dataSetsMagneto = new ArrayList<>();
+   private ArrayList<ILineDataSet> dataSetsGyro = new ArrayList<>(),dataSetsAccelero = new ArrayList<>(),dataSetsMagneto = new ArrayList<>();
 
     private LineDataSet dataSetGyroZ ,dataSetGyroY,dataSetGyroX,dataSetAcceleroX,dataSetAcceleroY,dataSetAcceleroZ,dataSetMagnetoX,dataSetMagnetoY,dataSetMagnetoZ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_event2);
+        setContentView(R.layout.activity_event);
+        username = getIntent().getExtras().getString("username");
+        activityname = getIntent().getExtras().getString("activityname");
+        delay = Integer.parseInt((getIntent().getExtras().getString("delay")));
+        bindUI();
+        initializeCharts();
+        startEvent();
+    }
+
+    private void bindUI() {
         sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Uploading");
+        progressDialog.setCancelable(false);
         chartGyro = (LineChart) findViewById(R.id.graphgyro);
         count = findViewById(R.id.count);
         total_time = findViewById(R.id.time);
         chartAccelero = (LineChart) findViewById(R.id.graphaccelero);
         chartMagneto = (LineChart) findViewById(R.id.graphmagneto);
+        stop = findViewById(R.id.stop);
+        stop.setOnClickListener(this);
+        cancel = findViewById(R.id.cancel);
+        cancel.setOnClickListener(this);
+    }
+
+    private void initializeCharts() {
         chartGyro.setVisibleXRangeMaximum(1000);
         chartAccelero.setVisibleXRangeMaximum(1000);
         chartMagneto.setVisibleXRangeMaximum(1000);
-
-        username = getIntent().getExtras().getString("username");
-        activityname = getIntent().getExtras().getString("activityname");
-        delay = Integer.parseInt((getIntent().getExtras().getString("delay")));
-        stop = findViewById(R.id.stop);
-        stop.setOnClickListener(this);
-
         dataSetGyroX = new LineDataSet(new ArrayList<Entry>(), "Gyro X");
         dataSetGyroY = new LineDataSet(new ArrayList<Entry>(), "Gyro Y");
         dataSetGyroZ = new LineDataSet(new ArrayList<Entry>(), "Gyro Z");
@@ -117,22 +133,19 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
         dataMagneto = new LineData(dataSetsMagneto);
         chartMagneto.setData(dataMagneto);
         chartMagneto.invalidate();
-        startEvent();
-
-
-
     }
+
     private void startEvent() {
         Log.d("hellok","start "+start_time);
         start_time = new Date().getTime();
-        int period = delay; // repeat every 10 sec.
+        int period = delay;
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask()
         {
             public void run()
             {
                 showData();
-                //Call function
+
             }
         }, 0, period);
 
@@ -188,26 +201,30 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                chartGyro.notifyDataSetChanged();
-                chartGyro.invalidate();
-                chartAccelero.notifyDataSetChanged();
-                chartAccelero.invalidate();
-                chartMagneto.notifyDataSetChanged();
-                chartMagneto.invalidate();
-                count.setText("Data count : "+acceleroxList.size()+"");
-                try {
-                    total_time.setText("Time elapsed : "+getFormattedTime(new Date().getTime()-start_time));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+                updateCharts();
+
             }
         });
         Log.d("hello","gyrox "+gyrox+" gyroy "+gyroy+" gyroz "+gyroz);
         Log.d("hello","magnetox "+magnetox+" magnetoy "+magnetoy+" magnetoz "+magnetoz);
 
         Log.d("hello","accelerox "+accelerox+" acceleryx "+acceleroy+" acceleroz "+acceleroz);
-        //  long time2 = new Date().getTime() - start_time;
-        // Log.d("hellok","logtime2 "+time2);
+
+    }
+
+    private void updateCharts() {
+        chartGyro.notifyDataSetChanged();
+        chartGyro.invalidate();
+        chartAccelero.notifyDataSetChanged();
+        chartAccelero.invalidate();
+        chartMagneto.notifyDataSetChanged();
+        chartMagneto.invalidate();
+        count.setText("Data count : "+acceleroxList.size()+"");
+        try {
+            total_time.setText("Time elapsed : "+getFormattedTime(new Date().getTime()-start_time));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -215,6 +232,42 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
         if (sensorEvent.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION || sensorEvent.sensor.getType() == Sensor.TYPE_GYROSCOPE || sensorEvent.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
             getData(sensorEvent);
         }
+        if ((gravityValues != null) && (magneticValues != null)
+                && (sensorEvent.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION)) {
+            getEarthAcceleration(sensorEvent);
+
+        } else if (sensorEvent.sensor.getType() == Sensor.TYPE_GRAVITY) {
+            gravityValues = sensorEvent.values;
+        } else if (sensorEvent.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+            magneticValues = sensorEvent.values;
+        }
+
+    }
+
+    private void getEarthAcceleration(SensorEvent sensorEvent) {
+        float[] deviceRelativeAcceleration = new float[4];
+        deviceRelativeAcceleration[0] = sensorEvent.values[0];
+        deviceRelativeAcceleration[1] = sensorEvent.values[1];
+        deviceRelativeAcceleration[2] = sensorEvent.values[2];
+        deviceRelativeAcceleration[3] = 0;
+
+        // Change the device relative acceleration values to earth relative values
+        // X axis -> East
+        // Y axis -> North Pole
+        // Z axis -> Sky
+
+        float[] R = new float[16], I = new float[16], earthAcc = new float[16];
+
+        SensorManager.getRotationMatrix(R, I, gravityValues, magneticValues);
+
+        float[] inv = new float[16];
+
+        android.opengl.Matrix.invertM(inv, 0, R, 0);
+        android.opengl.Matrix.multiplyMV(earthAcc, 0, inv, 0, deviceRelativeAcceleration, 0);
+        accelerox = earthAcc[0];
+        acceleroy = earthAcc[1];
+        acceleroz = earthAcc[2];
+        Log.d("helloAcceleration", "Values: (" + earthAcc[0] + ", " + earthAcc[1] + ", " + earthAcc[2] + ")");
 
     }
 
@@ -225,54 +278,53 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
     private void getData(SensorEvent event) {
 
         float[] values = event.values;
-
-        // Movement
         float x = values[0];
         float y = values[1];
         float z = values[2];
-        //long actualTime = event.timestamp;
-
-
-
-
-        //if (actualTime - lastUpdate > 200) {
 
         if(event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
             gyrox = x;
             gyroy = y;
             gyroz = z;
-            //  lastUpdate = actualTime;
+
         }
         else if(event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
         {
             magnetox = x;
             magnetoy = y;
             magnetoz = z;
-            //  lastUpdate = actualTime;
+
         }
-        else if(event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION)
+        /*else if(event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION)
         {
             accelerox = x;
             acceleroy = y;
             acceleroz = z;
-        }
-        //   }
+        }*/
 
     }
     @Override
     protected void onResume() {
+        registerListeners();
+        super.onResume();
+    }
+
+    private void registerListeners() {
         sensorManager.registerListener(this,
                 sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION),
                 SensorManager.SENSOR_DELAY_NORMAL);
         boolean is = sensorManager.registerListener(this,
                 sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
                 SensorManager.SENSOR_DELAY_NORMAL);
-        //Toast.makeText(this, is+"", Toast.LENGTH_SHORT).show();
         sensorManager.registerListener(this,
                 sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
                 SensorManager.SENSOR_DELAY_NORMAL);
-
-        super.onResume();
+        sensorManager.registerListener(this,
+                sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY),
+                SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this,
+                sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
@@ -284,40 +336,55 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
 
     @Override
     public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.stop:
+            uploadData();
+            break;
+
+            case R.id.cancel:
+                finish();
+                break;
+        }
+
+    }
+
+    private void uploadData() {
         end_time = new Date().getTime();
         timer.cancel();
-        ActivityPojo activityPojo = new ActivityPojo(magnetoxList,magnetoyList,activityname,accelerozList,gyroxList,gyroyList,gyrozList,acceleroxList,acceleroyList,start_time,end_time,magnetozList,username);
-       RetrofitClient.getAPIService().postActivity(activityPojo).enqueue(new Callback<String>() {
+        progressDialog.show();
+        ActivityPojo activityPojo = new ActivityPojo(magnetoxList, magnetoyList, activityname, accelerozList, gyroxList, gyroyList, gyrozList, acceleroxList, acceleroyList, start_time, end_time, magnetozList, username);
+        RetrofitClient.getAPIService().postActivity(activityPojo).enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
-                // Toast.makeText(EventActivity.this, "kll", Toast.LENGTH_SHORT).show();
-                if(response.code() == 200)
-                {
-                    Toast.makeText(EventActivity.this, "Congrats nigga we have your data now, thanks for being our business model :3", Toast.LENGTH_SHORT).show();
+                if (response.code() == 200) {
+                    Toast.makeText(EventActivity.this, "Congrats we have your data now, thanks for being our business model :3", Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
                     finish();
-                }
-                else
-                {
-                    Toast.makeText(EventActivity.this, "Not my problem, server fucked up!", Toast.LENGTH_SHORT).show();
+
+                } else {
+                    Toast.makeText(EventActivity.this, "Server issue!", Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
+                    finish();
                 }
             }
 
             @Override
             public void onFailure(Call<String> call, Throwable t) {
-                Toast.makeText(EventActivity.this, "Not my problem, server fucked up!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EventActivity.this, "Server issue!", Toast.LENGTH_SHORT).show();
+                progressDialog.dismiss();
+                finish();
             }
         });
-        Log.d("hellok","time "+((end_time-start_time)/delay)+" MX "+magnetoxList.size()+" GX "+gyroxList.size()+" AX "+acceleroxList.size()+" ");
-
+        Log.d("hellok", "time " + ((end_time - start_time) / delay) + " MX " + magnetoxList.size() + " GX " + gyroxList.size() + " AX " + acceleroxList.size() + " ");
 
     }
 
     @Override
     public void onBackPressed() {
         Toast.makeText(this, "Activity is already running!", Toast.LENGTH_SHORT).show();
-        // super.onBackPressed();
     }
     public String getFormattedTime(long millis) throws ParseException {
+
         String hms = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis),
                 TimeUnit.MILLISECONDS.toMinutes(millis) % TimeUnit.HOURS.toMinutes(1),
                 TimeUnit.MILLISECONDS.toSeconds(millis) % TimeUnit.MINUTES.toSeconds(1));

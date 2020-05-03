@@ -5,4 +5,5 @@
     <color name="colorAccent">@color/violet</color>
     <color name="violet">#6a1b9a</color>
     <color name="white">#ffffff</color>
+    <color name="red">#F44336</color>
 </resources>

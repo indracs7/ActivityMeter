@@ -1,77 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+tools:context=".EventActivity">
+<RelativeLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".EventActivity">
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    android:layout_height="match_parent">
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <TextView
-            android:textColor="#000000"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:layout_margin="8dp"
-            android:text="Gyroscope"
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"></TextView>
-        <com.jjoe64.graphview.GraphView
-            android:layout_margin="8dp"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:id="@+id/graphgyro" />
-        <TextView
-            android:textColor="#000000"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:layout_margin="8dp"
-            android:text="Accelerometer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"></TextView>
-        <com.jjoe64.graphview.GraphView
-            android:layout_margin="8dp"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:id="@+id/graphaccelero" />
-        <TextView
-            android:textColor="#000000"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:layout_margin="8dp"
-            android:text="Magnetometer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"></TextView>
-        <com.jjoe64.graphview.GraphView
-            android:layout_margin="8dp"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:id="@+id/graphmagneto" />
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/time"
+                android:gravity="center"
+                android:textColor="@color/colorPrimary"
+                android:textSize="20sp"
+                android:text="00:00:00"
+                android:layout_width="match_parent"
+                android:layout_height="60dp" />
+            <TextView
+                android:id="@+id/count"
+                android:gravity="center"
+                android:textColor="@color/colorPrimary"
+                android:textSize="16sp"
+                android:text="0"
+                android:layout_width="match_parent"
+                android:layout_height="40dp" />
+            <TextView
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:layout_margin="8dp"
+                android:text="Accelerometer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"></TextView>
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/graphaccelero"
+                android:layout_width="match_parent"
+                android:layout_height="300dp" />
+            <TextView
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:layout_margin="8dp"
+                android:text="Gyroscope"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"></TextView>
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/graphgyro"
+                android:layout_width="match_parent"
+                android:layout_height="300dp" />
 
 
-    </LinearLayout>
+
+            <TextView
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:layout_margin="8dp"
+                android:text="Magnetometer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"></TextView>
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/graphmagneto"
+                android:layout_width="match_parent"
+                android:layout_height="300dp" />
+
+
+        </LinearLayout>
 
 
     </ScrollView>
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:layout_width="wrap_content"
-        android:id="@+id/stop"
+
+    <LinearLayout
+        android:gravity="center"
+        android:orientation="vertical"
         android:layout_margin="20dp"
-        android:text="Stop"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        app:icon="@drawable/ic_stop"
-        android:layout_height="wrap_content"></com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:layout_width="wrap_content"
+            android:id="@+id/stop"
+
+            android:text="upload"
+            android:textColor="@color/white"
+            app:rippleColor="@color/white"
+            app:iconTint="@color/white"
+            android:backgroundTint="@color/violet"
+
+            app:icon="@drawable/upload"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:layout_width="wrap_content"
+            android:id="@+id/cancel"
+            android:text="Cancel"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/white"
+            app:rippleColor="@color/white"
+            app:iconTint="@color/white"
+            android:backgroundTint="@color/red"
+            app:icon="@drawable/cancel"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+
 </RelativeLayout>
 
 
