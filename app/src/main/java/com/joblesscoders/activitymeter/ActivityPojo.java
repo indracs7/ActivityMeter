@@ -48,6 +48,8 @@ public class ActivityPojo
     private List<Float> gyroz;
 
     private List<Float> accelerox;
+    private List<Long> timestamp;
+    private List<List<Float>> rotmax;
 
     public int getDelay() {
         return delay;
@@ -126,7 +128,7 @@ public class ActivityPojo
         return user;
     }
 
-    public ActivityPojo(List<Float> magnetx, List<Float> magnety, String activity, List<Float> acceleroz, List<Float> gyrox, List<Float> gyroy, List<Float> gyroz, List<Float> accelerox, List<Float> acceleroy, long startTime, long endTime, List<Float> magnetz, String user) {
+    public ActivityPojo(List<Float> magnetx, List<Float> magnety, String activity, List<Float> acceleroz, List<Float> gyrox, List<Float> gyroy, List<Float> gyroz, List<Float> accelerox, List<Float> acceleroy, long startTime, long endTime, List<Float> magnetz, String user, List<List<Float>> rotmax,List<Long> timestamp) {
         this.magnetx = magnetx;
         this.magnety = magnety;
         this.activity = activity;
@@ -140,5 +142,8 @@ public class ActivityPojo
         this.endTime = endTime;
         this.magnetz = magnetz;
         this.user = user;
+        this.rotmax = rotmax;
+        this.timestamp = timestamp;
+
     }
 }

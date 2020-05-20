@@ -22,6 +22,7 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
@@ -47,7 +48,10 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
     private float[] gravityValues = null;
     private float[] magneticValues = null;
     private ProgressDialog progressDialog;
-
+    private List<Long> timestamp = new ArrayList<>();
+    private List<List<Float>> rotmax = new ArrayList<>();
+    private long timestampTemp;
+    private float[] rotMaxTemp  = new float[16];
    private ArrayList<ILineDataSet> dataSetsGyro = new ArrayList<>(),dataSetsAccelero = new ArrayList<>(),dataSetsMagneto = new ArrayList<>();
 
     private LineDataSet dataSetGyroZ ,dataSetGyroY,dataSetGyroX,dataSetAcceleroX,dataSetAcceleroY,dataSetAcceleroZ,dataSetMagnetoX,dataSetMagnetoY,dataSetMagnetoZ;
@@ -155,9 +159,29 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
         long time = new Date().getTime() - start_time;
         Log.d("hellok","logtime "+time + " AX "+accelerox);
 
+        timestamp.add(timestampTemp);
+        Float[] tempRot = new Float[16];
+        Log.e("helloxd",timestampTemp+"");
+        for(int i=0;i<16;i++)
+        {
+            tempRot[i] =  rotMaxTemp[i];
+        }
+      /*  if(rotMaxTemp == null) {
+            Log.e("hello", "error");
+
+        }
+            //Toast.makeText(this, "error", Toast.LENGTH_SHORT).show();
+        else*/
+            rotmax.add(Arrays.asList(tempRot));
+
+
+
+
+
         gyroxList.add(gyrox);
         gyroyList.add(gyroy);
         gyrozList.add(gyroz);
+
 
         try {
             dataGyro.addEntry(new Entry(time/1000,gyrox),0);
@@ -207,7 +231,6 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
         });
         Log.d("hello","gyrox "+gyrox+" gyroy "+gyroy+" gyroz "+gyroz);
         Log.d("hello","magnetox "+magnetox+" magnetoy "+magnetoy+" magnetoz "+magnetoz);
-
         Log.d("hello","accelerox "+accelerox+" acceleryx "+acceleroy+" acceleroz "+acceleroz);
 
     }
@@ -256,18 +279,19 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
         // Y axis -> North Pole
         // Z axis -> Sky
 
-        float[] R = new float[16], I = new float[16], earthAcc = new float[16];
+        //rotMaxTemp = new float[16];
+        float[] I = new float[16], earthAcc = new float[16];
 
-        SensorManager.getRotationMatrix(R, I, gravityValues, magneticValues);
-
+        SensorManager.getRotationMatrix(rotMaxTemp, I, gravityValues, magneticValues);
+/*
         float[] inv = new float[16];
 
-        android.opengl.Matrix.invertM(inv, 0, R, 0);
+        android.opengl.Matrix.invertM(inv, 0, rotMaxTemp, 0);
         android.opengl.Matrix.multiplyMV(earthAcc, 0, inv, 0, deviceRelativeAcceleration, 0);
         accelerox = earthAcc[0];
         acceleroy = earthAcc[1];
         acceleroz = earthAcc[2];
-        Log.d("helloAcceleration", "Values: (" + earthAcc[0] + ", " + earthAcc[1] + ", " + earthAcc[2] + ")");
+        Log.d("helloAcceleration", "Values: (" + earthAcc[0] + ", " + earthAcc[1] + ", " + earthAcc[2] + ")");*/
 
     }
 
@@ -282,6 +306,7 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
         float y = values[1];
         float z = values[2];
 
+
         if(event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
             gyrox = x;
             gyroy = y;
@@ -295,12 +320,13 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
             magnetoz = z;
 
         }
-        /*else if(event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION)
+        else if(event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION)
         {
+            timestampTemp = event.timestamp;
             accelerox = x;
             acceleroy = y;
             acceleroz = z;
-        }*/
+        }
 
     }
     @Override
@@ -352,7 +378,7 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
         end_time = new Date().getTime();
         timer.cancel();
         progressDialog.show();
-        ActivityPojo activityPojo = new ActivityPojo(magnetoxList, magnetoyList, activityname, accelerozList, gyroxList, gyroyList, gyrozList, acceleroxList, acceleroyList, start_time, end_time, magnetozList, username);
+        ActivityPojo activityPojo = new ActivityPojo(magnetoxList, magnetoyList, activityname, accelerozList, gyroxList, gyroyList, gyrozList, acceleroxList, acceleroyList, start_time, end_time, magnetozList, username,rotmax,timestamp);
         RetrofitClient.getAPIService().postActivity(activityPojo).enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
@@ -362,7 +388,7 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
                     finish();
 
                 } else {
-                    Toast.makeText(EventActivity.this, "Server issue!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EventActivity.this, response.message()+response.code()+"errorServer issue!", Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
                     finish();
                 }
@@ -375,7 +401,7 @@ public class EventActivity extends AppCompatActivity implements SensorEventListe
                 finish();
             }
         });
-        Log.d("hellok", "time " + ((end_time - start_time) / delay) + " MX " + magnetoxList.size() + " GX " + gyroxList.size() + " AX " + acceleroxList.size() + " ");
+        Log.d("helloupload", "time " + ((end_time - start_time) / delay) + " MX " + magnetoxList.size() + " GX " + gyroxList.size() + " AX " + acceleroxList.size() + " "+ " Time "+timestamp.size()+" rotmax "+rotmax.size());
 
     }
 
